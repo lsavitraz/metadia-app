@@ -1,4 +1,5 @@
 import 'package:get/get.dart';
+import 'package:metadia/src/pages/base/binding/navigation_binding.dart';
 import 'package:metadia/src/pages/home/binding/home_binding.dart';
 import 'package:metadia/src/pages/splash/splash_screen.dart';
 import 'package:metadia/src/pages/base/base_screen.dart';
@@ -14,6 +15,7 @@ abstract class AppPages {
       page: () => const BaseScreen(),
       bindings: [
         HomeBinding(),
+        NavigationBinding()
       ],
     ),
   ];
@@ -22,4 +24,5 @@ abstract class AppPages {
 abstract class PagesRoute {
   static const String splashRoute = '/splash';
   static const String baseRoute = '/';
+  static const String createMetaRoute = '/create-meta';
 }

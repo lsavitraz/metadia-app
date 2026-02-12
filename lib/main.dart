@@ -18,6 +18,12 @@ class MetaDiaApp extends StatelessWidget {
       theme: AppTheme.lightTheme,
       initialRoute: PagesRoute.splashRoute,
       getPages: AppPages.pages,
+      builder: (context, child) {
+        return MediaQuery(
+          data: MediaQuery.of(context).copyWith(textScaler: TextScaler.linear(1.0)),
+          child: child!,
+        );
+      },
     );
   }
 }
