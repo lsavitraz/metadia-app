@@ -14,4 +14,10 @@ abstract class HomeRepository {
     required String metaId,
     required String atividadeId,
   });
+  //Decrementa a quantidade de uma atividade acumulativa
+  Future<void> decrementarAtividade({
+    required DateTime data,
+    required String metaId,
+    required String atividadeId,
+  });
 }

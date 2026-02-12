@@ -56,12 +56,31 @@ class HomeRepositoryMock implements HomeRepository {
       dataFinal: DateTime(2026, 12, 31),
       ativa: true,
       cor: Color(0xFF6FA89A),
+      atividades: [AtividadeModel(id: 'ativ_4', metaId: 'meta_3', nome: 'Atividade 😏', ativa: true, cor: Color(0xFFA7CFC2))],
+    );
+
+    final metaPasseio = MetaModel(
+      id: 'meta_4',
+      nome: 'Passeio com cachorro',
+      descricao: 'Levar o cachorro para passear',
+      tipo: MetaType.acumulativa,
+      objetivoQuantidade: 31,
+      dataInicial: DateTime(2026, 3, 1),
+      dataFinal: DateTime(2026, 3, 31),
+      ativa: true,
+      cor: Color(0xFF6FA89A),
       atividades: [
-        AtividadeModel(id: 'ativ_4', metaId: 'meta_3', nome: 'Atividade 😏', ativa: true, cor: Color(0xFFA7CFC2)),
+        AtividadeModel(
+          id: 'ativ_5',
+          metaId: 'meta_4',
+          nome: 'Passeio com cachorro',
+          ativa: true,
+          cor: Color(0xFFA7CFC2),
+        ),
       ],
     );
 
-    _metas.addAll([metaAtividadeFisica, metaMeditacao, metaAtividade]);
+    _metas.addAll([metaAtividadeFisica, metaMeditacao, metaAtividade, metaPasseio]);
   }
 
   @override
@@ -82,12 +101,45 @@ class HomeRepositoryMock implements HomeRepository {
   @override
   Future<void> registrarAtividade({required DateTime data, required String metaId, required String atividadeId}) async {
     await Future.delayed(const Duration(milliseconds: 150));
-    final jaRegistrado = _registros.any((registro) {
-      return registro.metaId == metaId && registro.atividadeId == atividadeId && registro.data.year == data.year && registro.data.month == data.month && registro.data.day == data.day;
-    });
 
-    if (!jaRegistrado) {
-      _registros.add(RegistroDiarioModel(id: _registros.length + 1, data: data, metaId: metaId, atividadeId: atividadeId));
+    //Encontrar a meta
+    final meta = _metas.firstWhere((m) => m.id == metaId);
+
+    // Procurar registro existente no mesmo dia
+    final registroExistente = _registros.where((registro) {
+      return registro.metaId == metaId && registro.atividadeId == atividadeId && registro.data.year == data.year && registro.data.month == data.month && registro.data.day == data.day;
+    }).toList();
+
+    if (meta.tipo == MetaType.acumulativa) {
+      //Se ja existe, incrementa a quantidade
+      if (registroExistente.isNotEmpty) {
+        registroExistente.first.quantidade += 1;
+      } else {
+        //Se não existe, cria novo registro com quantidade 1
+        _registros.add(RegistroDiarioModel(id: _registros.length + 1, data: data, metaId: metaId, atividadeId: atividadeId, quantidade: 1));
+      }
+    } else {
+      //Para simples e composta, só registra se ainda não existe
+      if (registroExistente.isEmpty) {
+        _registros.add(RegistroDiarioModel(id: _registros.length + 1, data: data, metaId: metaId, atividadeId: atividadeId, quantidade: 1));
+      }
+    }
+  }
+
+  Future<void> decrementarAtividade({required DateTime data, required String metaId, required String atividadeId}) async {
+    await Future.delayed(const Duration(milliseconds: 150));
+    // Procurar registro existente no mesmo dia
+    final registroExistente = _registros.where((registro) {
+      return registro.metaId == metaId && registro.atividadeId == atividadeId && registro.data.year == data.year && registro.data.month == data.month && registro.data.day == data.day;
+    }).toList();
+
+    if (registroExistente.isNotEmpty) {
+      final registro = registroExistente.first;
+      if (registro.quantidade > 1) {
+        registro.quantidade -= 1;
+      } else {
+        _registros.remove(registro);
+      }
     }
   }
 }

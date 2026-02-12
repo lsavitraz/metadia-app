@@ -1,6 +1,7 @@
 enum MetaType {
   simples(nome: 'Simples'),
-  composta(nome: 'Composta');
+  composta(nome: 'Composta'),
+  acumulativa(nome: 'Acumulativa');
 
   final String nome;
 

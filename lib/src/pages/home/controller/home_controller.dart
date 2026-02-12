@@ -1,5 +1,6 @@
 import 'package:get/get.dart';
 import 'package:metadia/src/constants/dias_semana_enum.dart';
+import 'package:metadia/src/constants/meta_type_enum.dart';
 import 'package:metadia/src/model/meta_model.dart';
 import 'package:metadia/src/model/registro_diario_model.dart';
 import 'package:metadia/src/pages/home/repository/home_repository.dart';
@@ -24,6 +25,11 @@ class HomeController extends GetxController {
   void onInit() {
     super.onInit();
     carregarDados();
+  }
+
+  //Busca a Meta pelo ID
+  MetaModel _getMetaById(String metaId) {
+    return metas.firstWhere((meta) => meta.id == metaId);
   }
 
   //Carrega metas e registros do dia
@@ -51,7 +57,26 @@ class HomeController extends GetxController {
 
   //Marca uma atividade com "Feito"
   Future<void> marcarAtividadeComoFeita({required String metaId, required String atividadeId}) async {
-    await repository.registrarAtividade(data: selectedDate.value, metaId: metaId, atividadeId: atividadeId);
+    final meta = _getMetaById(metaId);
+
+    if (meta.tipo == MetaType.acumulativa) {
+      await repository.registrarAtividade(data: selectedDate.value, metaId: metaId, atividadeId: atividadeId);
+    } else {
+      if (!atividadeFeitaNoDia(metaId: metaId, atividadeId: atividadeId)) {
+        await repository.registrarAtividade(data: selectedDate.value, metaId: metaId, atividadeId: atividadeId);
+      }
+    }
+
+    await _carregarRegistrosDoDia();
+  }
+
+  //Decrementar a quantidade de uma atividade acumulativa
+  Future<void> decrementarAtividade({required String metaId, required String atividadeId}) async {
+    final meta = _getMetaById(metaId);
+
+    if (meta.tipo == MetaType.acumulativa) {
+      await repository.decrementarAtividade(data: selectedDate.value, metaId: metaId, atividadeId: atividadeId);
+    }
 
     await _carregarRegistrosDoDia();
   }
@@ -63,7 +88,21 @@ class HomeController extends GetxController {
 
   //Retorna a quantidade de atividades feitas da meta no dia
   int quantidadeFeitosDaMeta(String metaId) {
-    return registrosDoDia.where((registro) => registro.metaId == metaId).length;
+    return registrosDoDia.where((registro) => registro.metaId == metaId).fold(0, (total, registro) => total + registro.quantidade);
+  }
+
+  //Retorna a quantidade feita Total da meta
+  int quantidadeTotalDaMeta(String metaId) {
+    return registrosDoDia.where((registro) => registro.metaId == metaId)
+        .where((registro) => registro.metaId == metaId)
+        .fold(0, (total, registro) => total + registro.quantidade);
+  }
+
+  //Retorna a quantidade feitas da atividade no dia
+  int quantidadeFeitosDaAtividade({required String metaId, required String atividadeId}) {
+    final registro = registrosDoDia.firstWhereOrNull((registro) => registro.metaId == metaId && registro.atividadeId == atividadeId);
+
+    return registro?.quantidade ?? 0;
   }
 
   //Vai para a semana anterior
@@ -105,10 +144,10 @@ class HomeController extends GetxController {
 
       //Meta composta: precisa ter ao menos uma atividade válida
       return meta.atividades.any((atividade) {
-        if(atividade.diasSemana == null || atividade.diasSemana!.isEmpty) {
+        if (atividade.diasSemana == null || atividade.diasSemana!.isEmpty) {
           return true;
         }
-        
+
         return atividade.diasSemana!.contains(diaAtual);
       });
     }).toList();
