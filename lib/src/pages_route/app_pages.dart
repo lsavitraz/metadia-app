@@ -1,5 +1,7 @@
 import 'package:get/get.dart';
 import 'package:metadia/src/pages/base/binding/navigation_binding.dart';
+import 'package:metadia/src/pages/create_meta/binding/create_meta_binding.dart';
+import 'package:metadia/src/pages/create_meta/view/create_meta_screen.dart';
 import 'package:metadia/src/pages/home/binding/home_binding.dart';
 import 'package:metadia/src/pages/splash/splash_screen.dart';
 import 'package:metadia/src/pages/base/base_screen.dart';
@@ -11,11 +13,16 @@ abstract class AppPages {
       page: () => const SplashScreen(),
     ),
     GetPage(
+      name: PagesRoute.createMetaRoute,
+      page: () => const CreateMetaScreen(),
+      binding: CreateMetaBinding(),
+    ),
+    GetPage(
       name: PagesRoute.baseRoute, 
       page: () => const BaseScreen(),
       bindings: [
         HomeBinding(),
-        NavigationBinding()
+        NavigationBinding(),
       ],
     ),
   ];

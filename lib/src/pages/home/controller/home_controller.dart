@@ -27,6 +27,10 @@ class HomeController extends GetxController {
     carregarDados();
   }
 
+  DateTime _normalize(DateTime date) {
+    return DateTime(date.year, date.month, date.day);
+  }
+
   //Busca a Meta pelo ID
   MetaModel _getMetaById(String metaId) {
     return metas.firstWhere((meta) => meta.id == metaId);
@@ -132,7 +136,10 @@ class HomeController extends GetxController {
       }
 
       //Dia precisa estar dentro do período da meta
-      final dentroDoPeriodo = !selectedDate.value.isBefore(meta.dataInicial) && !selectedDate.value.isAfter(meta.dataFinal);
+      final selected = _normalize(selectedDate.value);
+      final inicio = _normalize(meta.dataInicial);
+      final fim = _normalize(meta.dataFinal);
+      final dentroDoPeriodo = !selected.isBefore(inicio) && !selected.isAfter(fim);
       if (!dentroDoPeriodo) {
         return false;
       }

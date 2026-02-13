@@ -69,15 +69,7 @@ class HomeRepositoryMock implements HomeRepository {
       dataFinal: DateTime(2026, 3, 31),
       ativa: true,
       cor: Color(0xFF6FA89A),
-      atividades: [
-        AtividadeModel(
-          id: 'ativ_5',
-          metaId: 'meta_4',
-          nome: 'Passeio com cachorro',
-          ativa: true,
-          cor: Color(0xFFA7CFC2),
-        ),
-      ],
+      atividades: [AtividadeModel(id: 'ativ_5', metaId: 'meta_4', nome: 'Passeio com cachorro', ativa: true, cor: Color(0xFFA7CFC2))],
     );
 
     _metas.addAll([metaAtividadeFisica, metaMeditacao, metaAtividade, metaPasseio]);
@@ -142,4 +134,11 @@ class HomeRepositoryMock implements HomeRepository {
       }
     }
   }
+
+  @override
+  Future<void> salvarMeta(MetaModel meta) async {
+    await Future.delayed(const Duration(milliseconds: 200));
+    _metas.add(meta);
+  }
+  
 }

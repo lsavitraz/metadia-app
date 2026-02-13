@@ -32,7 +32,6 @@ class BaseScreen extends GetView<NavigationController> {
 
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          //TELA DE CADASTRO
           Get.toNamed(PagesRoute.createMetaRoute);
         },
         child: const Icon(Icons.add),

@@ -20,4 +20,7 @@ abstract class HomeRepository {
     required String metaId,
     required String atividadeId,
   });
+
+  //Salva meta
+  Future<void> salvarMeta(MetaModel meta);
 }
