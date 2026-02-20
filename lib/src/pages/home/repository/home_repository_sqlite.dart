@@ -19,7 +19,7 @@ class HomeRepositorySqlite implements HomeRepository {
       'nome': meta.nome,
       'descricao': meta.descricao,
       'tipo': meta.tipo.nome,
-      'objetivoQauntidade': meta.objetivoQuantidade,
+      'objetivoQuantidade': meta.objetivoQuantidade,
       'dataInicial': meta.dataInicial.toIso8601String(),
       'dataFinal': meta.dataFinal.toIso8601String(),
       'ativa': meta.ativa ? 1 : 0,
@@ -97,7 +97,7 @@ class HomeRepositorySqlite implements HomeRepository {
           nome: metaMap['nome'] as String,
           descricao: metaMap['descricao'] as String,
           tipo: MetaType.fromName(metaMap['tipo'] as String),
-          objetivoQuantidade: metaMap['objetivoQauntidade'] as int,
+          objetivoQuantidade: metaMap['objetivoQuantidade'] == null ? 0 : metaMap['objetivoQuantidade'] as int,
           atividades: atividades,
           dataInicial: DateTime.parse(metaMap['dataInicial'] as String),
           dataFinal: DateTime.parse(metaMap['dataFinal'] as String),
@@ -410,23 +410,21 @@ class HomeRepositorySqlite implements HomeRepository {
         whereArgs: [meta.id],
       );
 
-      //Buscar ids das atividades antigas
-      final antigas = await txn.query(
-        'atividades',
-        where: 'metaId = ?',
-        whereArgs: [meta.id],
-      );
+      // //Buscar ids das atividades antigas
+      // final antigas = await txn.query(
+      //   'atividades',
+      //   where: 'metaId = ?',
+      //   whereArgs: [meta.id],
+      // );
 
-      final antigasIds = antigas.map((a) => a['id'] as String).toList();
+      // final antigasIds = antigas.map((a) => a['id'] as String).toList();
 
       //Deletar dias das atividades antigas
-      for (final id in antigasIds) {
-        await txn.delete(
-          'atividade_dias',
-          where: 'atividadeId = ?',
-          whereArgs: [id],
-        );
-      }
+      await txn.delete(
+        'atividade_dias',
+        where: 'atividadeId IN (SELECT id FROM atividades WHERE metaId = ?)',
+        whereArgs: [meta.id],
+      );
 
       //Deletar atividades antigas
       await txn.delete(
@@ -438,10 +436,15 @@ class HomeRepositorySqlite implements HomeRepository {
       //Recriar atividades + dias
       for (final atividade in meta.atividades) {
 
-        await txn.insert('atividades', atividade.toMap());
+        await txn.insert('atividades', {
+          'id': atividade.id,
+          'metaId': atividade.metaId,
+          'nome': atividade.nome,
+          'ativa': atividade.ativa ? 1 : 0,
+          'cor': atividade.cor.value,
+        });
 
-        if (atividade.diasSemana != null &&
-            atividade.diasSemana!.isNotEmpty) {
+        if (atividade.diasSemana != null && atividade.diasSemana!.isNotEmpty) {
 
           for (final dia in atividade.diasSemana!) {
             await txn.insert(

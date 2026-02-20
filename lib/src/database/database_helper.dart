@@ -27,7 +27,7 @@ class DatabaseHelper {
         nome TEXT,
         descricao TEXT,
         tipo TEXT,
-        objetivoQauntidade INTEGER,
+        objetivoQuantidade INTEGER,
         dataInicial TEXT,
         dataFinal TEXT,
         ativa INTEGER,

@@ -215,6 +215,11 @@ class _DaysSection extends GetView<CreateMetaController> {
       if (controller.isComposta) {
         return const SizedBox.shrink();
       }
+
+      if(controller.atividades.isEmpty){
+        return const SizedBox.shrink();
+      }
+
       final atividade = controller.atividades.first;
 
       return WeekDaysSelector(
