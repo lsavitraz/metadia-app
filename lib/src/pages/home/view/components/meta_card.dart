@@ -4,6 +4,7 @@ import 'package:metadia/src/constants/dias_semana_enum.dart';
 import 'package:metadia/src/model/meta_model.dart';
 import 'package:metadia/src/pages/home/controller/home_controller.dart';
 import 'package:metadia/src/pages/home/view/components/atividade_item.dart';
+import 'package:metadia/src/pages_route/app_pages.dart';
 
 class MetaCard extends StatelessWidget {
   final MetaModel meta;
@@ -14,13 +15,36 @@ class MetaCard extends StatelessWidget {
     final controller = Get.find<HomeController>();
     final diaAtual = DiasSemana.fromId(controller.selectedDate.value.weekday);
 
+    final atividadesDoDia = meta.atividades.where((atividade) {
+      //Se não tem dias definidos, sempre aparece
+      if(atividade.diasSemana == null || atividade.diasSemana!.isEmpty){
+        return true;
+      }
+
+      return atividade.diasSemana!.contains(diaAtual);
+    }).toList();
+
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(meta.nome, style: Theme.of(context).textTheme.titleMedium),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(meta.nome, style: Theme.of(context).textTheme.titleMedium),
+                IconButton(
+                  icon: const Icon(Icons.edit, size: 20),
+                  onPressed: () {
+                    Get.toNamed(
+                      PagesRoute.createMetaRoute,
+                      arguments: meta.id,
+                    );
+                  },
+                ),
+              ],
+            ),
             const SizedBox(height: 8),
 
             // LinearProgressIndicator(
@@ -31,7 +55,7 @@ class MetaCard extends StatelessWidget {
             //   color: meta.cor,
             // ),
             Obx(() {
-              final totalFeito = controller.quantidadeFeitosDaMeta(meta.id);
+              final totalFeito = controller.totaisMetas[meta.id] ?? 0;
               final progresso = (totalFeito / meta.objetivoQuantidade).clamp(0.0, 1.0);
               final percentual = (progresso * 100).round();
               return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
@@ -48,7 +72,7 @@ class MetaCard extends StatelessWidget {
             }),
 
             const SizedBox(height: 12),
-            ...meta.atividades.map((atividade) => AtividadeItem(meta: meta, atividade: atividade)),
+            ...atividadesDoDia.map((atividade) => AtividadeItem(meta: meta, atividade: atividade)),
           ],
         ),
       ),

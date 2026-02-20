@@ -36,11 +36,52 @@ class CreateMetaController extends GetxController {
 
   final Rx<Color> corSelecionada = AppColors.primary.obs;
 
+  String? metaId; // Se for edição, terá o ID da meta sendo editada
+  bool get isEditing => metaId != null;
+
   @override
   void onInit() {
     super.onInit();
 
-    _criarAtividadePadrao();
+    metaId = Get.arguments as String?;
+
+    if(metaId != null){
+      _carregarMetaParaEdicao();
+    } else {
+      _criarAtividadePadrao();
+    }
+  }
+
+  MetaModel _buildMetaModel(){
+    final id = metaId ?? const Uuid().v4();
+
+    final dataIni = DateTime(dataInicial.value.year, dataInicial.value.month, dataInicial.value.day);
+    final dataFim = DateTime(dataFinal.value.year, dataFinal.value.month, dataFinal.value.day);
+
+    final atividadesAtualizadas = atividades.map((atividade) {
+      return AtividadeModel(
+        id: atividade.id, 
+        metaId: id,
+        nome: atividade.nome, 
+        ativa: atividade.ativa,
+        cor: atividade.cor,
+        diasSemana: atividade.diasSemana,
+      );
+    }).toList();
+
+    return MetaModel(
+      id: id,
+      nome: nomeController.text.trim(),
+      descricao: descricaoController.text.trim(),
+      tipo: tipoSelecionado.value,
+      objetivoQuantidade: int.parse(objetivoController.text.trim()),
+      atividades: atividadesAtualizadas,
+      dataInicial: dataIni,
+      dataFinal: dataFim,
+      ativa: true,
+      arquivadaEm: null,
+      cor: corSelecionada.value,
+    );
   }
 
   void selecionarCor(Color cor) {
@@ -49,6 +90,20 @@ class CreateMetaController extends GetxController {
 
   void _criarAtividadePadrao() {
     atividades.add(AtividadeModel(id: UniqueKey().toString(), metaId: '', nome: '', ativa: true, cor: corSelecionada.value));
+  }
+
+  Future<void> _carregarMetaParaEdicao() async {
+    final meta = await repository.getMetaById(metaId!);
+
+    nomeController.text = meta.nome;
+    descricaoController.text = meta.descricao;
+    objetivoController.text = meta.objetivoQuantidade.toString();
+    tipoSelecionado.value = meta.tipo;
+    dataInicial.value = meta.dataInicial;
+    dataFinal.value = meta.dataFinal;
+    corSelecionada.value = meta.cor;
+    atividades.assignAll(meta.atividades);
+
   }
 
   void alterarTipo(MetaType tipo) {
@@ -132,28 +187,18 @@ class CreateMetaController extends GetxController {
   }
 
   void salvarMeta() async {
-    if (!validarFormulario()) return;
+    if(!validarFormulario()) return;
 
-    final metaId = _uuid.v4();
+    final meta = _buildMetaModel();
 
-    List<AtividadeModel> atividadesFinal;
-
-    if (isComposta) {
-      atividadesFinal = atividades.map((atividade) {
-        return AtividadeModel(id: _uuid.v4(), metaId: metaId, nome: atividade.nome.trim(), diasSemana: atividade.diasSemana, ativa: true, cor: atividade.cor);
-      }).toList();
-    } else {
-      atividadesFinal = [AtividadeModel(id: _uuid.v4(), metaId: metaId, nome: nomeController.text.trim(), diasSemana: atividades.first.diasSemana, ativa: true, cor: corSelecionada.value)];
+    if(isEditing){
+      await repository.updateMeta(meta);
+    } else{
+      await repository.salvarMeta(meta);
     }
 
-    final meta = MetaModel(id: metaId, nome: nomeController.text.trim(), descricao: descricaoController.text.trim(), tipo: tipoSelecionado.value, objetivoQuantidade: int.tryParse(objetivoController.text.trim()) ?? 0, dataInicial: DateTime(dataInicial.value.year, dataInicial.value.month, dataInicial.value.day), dataFinal: DateTime(dataFinal.value.year, dataFinal.value.month, dataFinal.value.day), atividades: atividadesFinal, ativa: true, cor: corSelecionada.value);
-
-    await repository.salvarMeta(meta);
-
-    final homeController = Get.find<HomeController>();
-
-    homeController.metas.assignAll(await repository.getMetasAtivas());
-
+    Get.find<HomeController>().carregarDados();
+    
     Get.back();
   }
 }

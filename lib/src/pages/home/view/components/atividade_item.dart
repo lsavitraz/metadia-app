@@ -22,7 +22,7 @@ class AtividadeItem extends StatelessWidget {
 
         return _CounterControl(
           quantidade: quantidade,
-          onIncrement: () => controller.marcarAtividadeComoFeita(metaId: meta.id, atividadeId: atividade.id),
+          onIncrement: () => controller.marcarAtividade(metaId: meta.id, atividadeId: atividade.id),
           onDecrement: () => controller.decrementarAtividade(metaId: meta.id, atividadeId: atividade.id),
         );
       }
@@ -35,10 +35,8 @@ class AtividadeItem extends StatelessWidget {
         trailing: IconButton(
           icon: Icon(feito ? Icons.check_circle : Icons.radio_button_unchecked, color: feito ? AppColors.success : AppColors.pending),
           onPressed: () {
-            if (!feito) {
-              controller.marcarAtividadeComoFeita(metaId: meta.id, atividadeId: atividade.id);
-            }
-          },
+            controller.marcarAtividade(metaId: meta.id, atividadeId: atividade.id);
+        },
         ),
       );
     });

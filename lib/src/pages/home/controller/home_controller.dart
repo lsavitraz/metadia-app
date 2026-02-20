@@ -21,6 +21,8 @@ class HomeController extends GetxController {
 
   final RxBool isLoading = false.obs;
 
+  final RxMap<String, int> totaisMetas = <String, int>{}.obs;
+
   @override
   void onInit() {
     super.onInit();
@@ -42,9 +44,18 @@ class HomeController extends GetxController {
 
     try {
       metas.assignAll(await repository.getMetasAtivas());
+      await carregarTotaisMetas();
       await _carregarRegistrosDoDia();
     } finally {
       isLoading.value = false;
+    }
+  }
+
+  //Carrega os totais das metas
+  Future<void> carregarTotaisMetas() async {
+    for (final meta in metas) {
+      final total = await repository.getTotalMeta(meta.id);
+      totaisMetas[meta.id] = total;
     }
   }
 
@@ -60,19 +71,19 @@ class HomeController extends GetxController {
   }
 
   //Marca uma atividade com "Feito"
-  Future<void> marcarAtividadeComoFeita({required String metaId, required String atividadeId}) async {
-    final meta = _getMetaById(metaId);
+Future<void> marcarAtividade({
+  required String metaId,
+  required String atividadeId,
+}) async {
+  await repository.registrarAtividade(
+    data: selectedDate.value,
+    metaId: metaId,
+    atividadeId: atividadeId,
+  );
 
-    if (meta.tipo == MetaType.acumulativa) {
-      await repository.registrarAtividade(data: selectedDate.value, metaId: metaId, atividadeId: atividadeId);
-    } else {
-      if (!atividadeFeitaNoDia(metaId: metaId, atividadeId: atividadeId)) {
-        await repository.registrarAtividade(data: selectedDate.value, metaId: metaId, atividadeId: atividadeId);
-      }
-    }
-
-    await _carregarRegistrosDoDia();
-  }
+  await carregarTotaisMetas();
+  await _carregarRegistrosDoDia();
+}
 
   //Decrementar a quantidade de uma atividade acumulativa
   Future<void> decrementarAtividade({required String metaId, required String atividadeId}) async {
@@ -82,6 +93,7 @@ class HomeController extends GetxController {
       await repository.decrementarAtividade(data: selectedDate.value, metaId: metaId, atividadeId: atividadeId);
     }
 
+    await carregarTotaisMetas();
     await _carregarRegistrosDoDia();
   }
 
@@ -91,16 +103,16 @@ class HomeController extends GetxController {
   }
 
   //Retorna a quantidade de atividades feitas da meta no dia
-  int quantidadeFeitosDaMeta(String metaId) {
-    return registrosDoDia.where((registro) => registro.metaId == metaId).fold(0, (total, registro) => total + registro.quantidade);
-  }
+  // int quantidadeFeitosDaMeta(String metaId) {
+  //   return registrosDoDia.where((registro) => registro.metaId == metaId).fold(0, (total, registro) => total + registro.quantidade);
+  // }
 
   //Retorna a quantidade feita Total da meta
-  int quantidadeTotalDaMeta(String metaId) {
-    return registrosDoDia.where((registro) => registro.metaId == metaId)
-        .where((registro) => registro.metaId == metaId)
-        .fold(0, (total, registro) => total + registro.quantidade);
-  }
+  // int quantidadeTotalDaMeta(String metaId) {
+  //   return registrosDoDia.where((registro) => registro.metaId == metaId)
+  //       .where((registro) => registro.metaId == metaId)
+  //       .fold(0, (total, registro) => total + registro.quantidade);
+  // }
 
   //Retorna a quantidade feitas da atividade no dia
   int quantidadeFeitosDaAtividade({required String metaId, required String atividadeId}) {
@@ -159,4 +171,12 @@ class HomeController extends GetxController {
       });
     }).toList();
   }
+
+  Future<void> inativarMeta(String metaId) async {
+    await repository.inativarMeta(metaId);
+    
+    await carregarDados();
+  }
+
+
 }

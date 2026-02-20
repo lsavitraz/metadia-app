@@ -23,4 +23,16 @@ abstract class HomeRepository {
 
   //Salva meta
   Future<void> salvarMeta(MetaModel meta);
+
+  //Totaliza as metas
+  Future<int> getTotalMeta(String metaId);
+
+  //Inativar meta
+  Future<void> inativarMeta(String metaId);
+
+  //Buscar meta por ID
+  Future<MetaModel> getMetaById(String metaId);
+
+  //Alterar Meta
+  Future<void> updateMeta(MetaModel meta);
 }

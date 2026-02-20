@@ -25,7 +25,41 @@ class HomeTab extends GetView<HomeController> {
           if(controller.metasDoDia.isEmpty)
             const _EmptyState()
           else
-            ...controller.metasDoDia.map((meta) => MetaCard(meta: meta)),
+            //...controller.metasDoDia.map((meta) => MetaCard(meta: meta)),
+            ...controller.metasDoDia.map((meta) {
+              return Dismissible(
+                key: ValueKey(meta.id),
+                direction: DismissDirection.endToStart,
+                background: Container(
+                  alignment: Alignment.centerRight,
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                  color: Colors.orange,
+                  child: const Icon(Icons.archive, color: Colors.white,),
+                ),
+                confirmDismiss: (_) async {
+                  return await Get.dialog<bool>(
+                    AlertDialog(
+                      title: const Text('Arquivar meta'),
+                      content: const Text('Deseja arquivar esta meta?'),
+                      actions: [
+                        TextButton(
+                          onPressed: () => Get.back(result: false), 
+                          child: const Text('Cancelar'),
+                        ),
+                        ElevatedButton(
+                          onPressed: () => Get.back(result: true), 
+                          child: const Text('Arquivar'),
+                        ),
+                      ],
+                    ),
+                    );                    
+                },
+                onDismissed: (_) {
+                  controller.inativarMeta(meta.id);
+                },
+                child: MetaCard(meta: meta),
+              );
+            }).toList(),
         ],
       );
     });
