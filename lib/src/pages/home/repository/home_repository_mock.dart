@@ -169,4 +169,22 @@ class HomeRepositoryMock implements HomeRepository {
       _metas[index] = meta;
     }
   }
+
+  @override
+  Future<List<MetaModel>> getMetasByPeriodo(DateTime inicio, DateTime fim) async {
+    await Future.delayed(const Duration(milliseconds: 200));
+    return _metas.where((meta) {
+      return meta.dataInicial.isBefore(fim) && meta.dataFinal.isAfter(inicio);
+    }).toList();
+  }
+
+  @override
+  Future<int> getTotalMetaByPeriodo(String metaId, DateTime inicio, DateTime fim) async {
+    await Future.delayed(const Duration(milliseconds: 100));
+    final total = _registros.where((registro) {
+      return registro.metaId == metaId && registro.data.isAfter(inicio) && registro.data.isBefore(fim);
+    }).fold(0, (sum, registro) => sum + registro.quantidade);
+    return total; 
+  }
+
 }

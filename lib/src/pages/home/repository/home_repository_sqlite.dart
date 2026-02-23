@@ -460,5 +460,133 @@ class HomeRepositorySqlite implements HomeRepository {
     });
   }
 
+  @override
+  Future<List<MetaModel>> getMetasByPeriodo(DateTime inicio, DateTime fim) async {
+    final db = await dbHelper.database;
+
+    final inicioStr = DateTime(inicio.year, inicio.month, inicio.day).toIso8601String();
+    final fimStr = DateTime(fim.year, fim.month, fim.day).toIso8601String();
+
+    final metasMap = await db.query(
+      'metas',
+      where: '''
+        date(dataInicial) <= date(?)
+        AND
+        date(dataFinal) >= date(?)
+      ''',
+      whereArgs: [fimStr, inicioStr],
+    );
+
+    List<MetaModel> metas = [];
+
+    for(var metaMap in metasMap){
+      final atividadesMap = await db.query(
+        'atividades',
+        where: 'metaId = ?',
+        whereArgs: [metaMap['id']],
+      );
+
+      List<AtividadeModel> atividades = [];
+
+      for(var atividadeMap in atividadesMap){
+        final diasMap = await db.query(
+          'atividade_dias',
+          where: 'atividadeId = ?',
+          whereArgs: [atividadeMap['id']],
+        );
+
+        final dias = diasMap
+          .map((d) => d['diaSemana'] as int)
+          .map((id) => DiasSemana.fromId(id))
+          .toList();
+
+          atividades.add(
+            AtividadeModel(
+              id: atividadeMap['id'] as String,
+              metaId: atividadeMap['metaId'] as String,
+              nome: atividadeMap['nome'] as String,
+              ativa: (atividadeMap['ativa'] as int) == 1,
+              cor: Color(atividadeMap['cor'] as int),
+              diasSemana: dias.isEmpty ? null : dias,
+            ),
+          );
+      }
+
+      metas.add(
+        MetaModel(
+          id: metaMap['id'] as String,
+          nome: metaMap['nome'] as String,
+          descricao: metaMap['descricao'] as String,
+          tipo: MetaType.fromName(metaMap['tipo'] as String),
+          objetivoQuantidade: metaMap['objetivoQuantidade'] == null ? 0 : metaMap['objetivoQuantidade'] as int,
+          atividades: atividades,
+          dataInicial: DateTime.parse(metaMap['dataInicial'] as String),
+          dataFinal: DateTime.parse(metaMap['dataFinal'] as String),
+          ativa: (metaMap['ativa'] as int) == 1,
+          cor: Color(metaMap['cor'] as int),
+        ),
+      );
+    }
+    return metas;
+  }
+
+  @override
+  Future<int> getTotalMetaByPeriodo(String metaId, DateTime inicio, DateTime fim) async {
+    final db = await dbHelper.database;
+
+    final inicioStr = DateTime(inicio.year, inicio.month, inicio.day).toIso8601String();
+    final fimStr = DateTime(fim.year, fim.month, fim.day).toIso8601String();
+
+    //Buscar tipo da meta
+    final metaMap = await db.query(
+      'metas',
+      where: 'id = ?',
+      whereArgs: [metaId],
+    );
+
+    if(metaMap.isEmpty) return 0; //Meta não encontrada
+
+    final tipo = metaMap.first['tipo'] as String;
+
+    //META ACUMULATIVA - SOMA QUANTIDADES NO PERÍODO
+    if(tipo == MetaType.acumulativa.nome){
+      final result = await db.rawQuery('''
+        SELECT SUM(quantidade) as total
+        FROM registros
+        WHERE metaId = ?
+        AND date(data) BETWEEN date(?) AND date(?)
+        ''',
+        [metaId, inicioStr, fimStr]);
+
+        final total = result.first['total'];
+        return total == null ? 0 : total as int;
+    }
+
+    //META COMPOSTA - CONTA REGISTROS DE ATIVIDADES POR DIA DISTINTO
+    if(tipo == MetaType.composta.nome){
+      final result = await db.rawQuery('''
+        SELECT COUNT(DISTINCT date(data)) as total
+        FROM registros
+        WHERE metaId = ?
+        AND date(data) BETWEEN date(?) AND date(?)
+        ''',
+        [metaId, inicioStr, fimStr]);
+
+        final total = result.first['total'];
+        return total == null ? 0 : total as int;
+    }
+
+    //META SIMPLES - CONTA REGISTROS NO PERÍODO
+    final result = await db.rawQuery('''
+      SELECT COUNT(*) as total
+      FROM registros
+      WHERE metaId = ?
+      AND date(data) BETWEEN date(?) AND date(?)
+      ''',
+      [metaId, inicioStr, fimStr]); 
+
+      final total = result.first['total'];
+      return total == null ? 0 : total as int;
+  }
 
 }

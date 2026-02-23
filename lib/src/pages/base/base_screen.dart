@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:metadia/src/pages/base/controller/navigation_controller.dart';
 import 'package:metadia/src/pages/home/view/home_tab.dart';
+import 'package:metadia/src/pages/reports/view/reports_tab.dart';
 import 'package:metadia/src/pages_route/app_pages.dart';
 
 class BaseScreen extends GetView<NavigationController> {
@@ -63,7 +64,7 @@ Widget _BuildPage(int index) {
     case 0:
       return const HomeTab(key: ValueKey(0));
     case 1:
-      return const _ReportsPlaceholder(key: ValueKey(1));
+      return const ReportsTab(key: ValueKey(1));
     default:
       return const HomeTab(key: ValueKey(0));
   }
@@ -90,17 +91,5 @@ class _NavItem extends StatelessWidget {
           splashRadius: 22,
         );
     });
-  }
-}
-
-
-class _ReportsPlaceholder extends StatelessWidget {
-  const _ReportsPlaceholder({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return const Center(
-      child: Text('Relatórios (em breve)'),
-    );
   }
 }

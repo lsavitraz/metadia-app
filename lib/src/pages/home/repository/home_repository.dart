@@ -35,4 +35,11 @@ abstract class HomeRepository {
 
   //Alterar Meta
   Future<void> updateMeta(MetaModel meta);
+
+  //Buscar metas por período
+  Future<List<MetaModel>> getMetasByPeriodo(DateTime inicio, DateTime fim);
+
+  //Buscar total de meta por período
+  Future<int> getTotalMetaByPeriodo(String metaId, DateTime inicio, DateTime fim);
+  
 }
