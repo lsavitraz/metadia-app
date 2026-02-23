@@ -60,7 +60,7 @@ class _DayItem extends StatelessWidget {
   final bool isSelected;
   final VoidCallback onTap;
 
-  const _DayItem({super.key, required this.date, required this.isSelected, required this.onTap});
+  const _DayItem({required this.date, required this.isSelected, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -94,7 +94,7 @@ class _ArrowButton extends StatelessWidget {
   final IconData icon;
   final VoidCallback onTap;
   
-  const _ArrowButton({super.key, required this.icon, required this.onTap});
+  const _ArrowButton({required this.icon, required this.onTap});
 
   @override
   Widget build(BuildContext context) {

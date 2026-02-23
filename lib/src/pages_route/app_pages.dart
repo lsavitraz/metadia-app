@@ -4,7 +4,6 @@ import 'package:metadia/src/pages/create_meta/binding/create_meta_binding.dart';
 import 'package:metadia/src/pages/create_meta/view/create_meta_screen.dart';
 import 'package:metadia/src/pages/home/binding/home_binding.dart';
 import 'package:metadia/src/pages/reports/binding/reports_binding.dart';
-import 'package:metadia/src/pages/reports/view/reports_tab.dart';
 import 'package:metadia/src/pages/splash/splash_screen.dart';
 import 'package:metadia/src/pages/base/base_screen.dart';
 

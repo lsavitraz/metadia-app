@@ -47,13 +47,6 @@ class MetaCard extends StatelessWidget {
             ),
             const SizedBox(height: 8),
 
-            // LinearProgressIndicator(
-            //   value: progresso,
-            //   minHeight: 6,
-            //   borderRadius: BorderRadius.circular(8),
-            //   backgroundColor: meta.cor.withValues(alpha: 0.15),
-            //   color: meta.cor,
-            // ),
             Obx(() {
               final totalFeito = controller.totaisMetas[meta.id] ?? 0;
               final progresso = (totalFeito / meta.objetivoQuantidade).clamp(0.0, 1.0);
@@ -83,7 +76,7 @@ class MetaCard extends StatelessWidget {
 class _AnimatedProgressBar extends StatefulWidget {
   final double value;
   final Color color;
-  const _AnimatedProgressBar({super.key, required this.value, required this.color});
+  const _AnimatedProgressBar({required this.value, required this.color});
 
   @override
   State<_AnimatedProgressBar> createState() => __AnimatedProgressBarState();

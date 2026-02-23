@@ -32,8 +32,6 @@ class CreateMetaController extends GetxController {
   bool get isComposta => tipoSelecionado.value == MetaType.composta;
   bool get isaAcumulativa => tipoSelecionado.value == MetaType.acumulativa;
 
-  final _uuid = const Uuid();
-
   final Rx<Color> corSelecionada = AppColors.primary.obs;
 
   String? metaId; // Se for edição, terá o ID da meta sendo editada

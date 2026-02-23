@@ -1,5 +1,4 @@
 import 'package:get/get.dart';
-import 'package:metadia/src/model/meta_model.dart';
 import 'package:metadia/src/model/report_meta_result.dart';
 import 'package:metadia/src/pages/home/repository/home_repository.dart';
 

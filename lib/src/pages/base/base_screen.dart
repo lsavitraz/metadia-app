@@ -73,7 +73,7 @@ Widget _BuildPage(int index) {
 class _NavItem extends StatelessWidget {
   final IconData icon;
   final int index;
-  const _NavItem({super.key, required this.icon, required this.index});
+  const _NavItem({required this.icon, required this.index});
 
   @override
   Widget build(BuildContext context) {

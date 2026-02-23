@@ -48,7 +48,7 @@ class _CounterControl extends StatelessWidget {
   final VoidCallback onIncrement;
   final VoidCallback onDecrement;
 
-  const _CounterControl({super.key, required this.quantidade, required this.onIncrement, required this.onDecrement});
+  const _CounterControl({required this.quantidade, required this.onIncrement, required this.onDecrement});
 
   @override
   Widget build(BuildContext context) {
@@ -69,7 +69,7 @@ class _CounterButton extends StatelessWidget {
   final IconData icon;
   final VoidCallback? onTap;
 
-  const _CounterButton({super.key, required this.icon, this.onTap});
+  const _CounterButton({required this.icon, this.onTap});
 
   @override
   Widget build(BuildContext context) {

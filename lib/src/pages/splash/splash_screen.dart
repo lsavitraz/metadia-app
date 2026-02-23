@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:metadia/src/config/color_scheme.dart';
-import 'package:metadia/src/pages/base/base_screen.dart';
 import 'package:metadia/src/pages_route/app_pages.dart';
 
 class SplashScreen extends StatefulWidget {
