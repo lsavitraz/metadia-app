@@ -59,7 +59,7 @@ class HomeTab extends GetView<HomeController> {
                 },
                 child: MetaCard(meta: meta),
               );
-            }).toList(),
+            }),
         ],
       );
     });
@@ -102,7 +102,7 @@ class _EmptyState extends StatelessWidget {
             color: Theme.of(context)
                 .colorScheme
                 .primary
-                .withOpacity(0.6),
+                .withValues(alpha: 0.6),
           ),
           const SizedBox(height: 16),
           Text(

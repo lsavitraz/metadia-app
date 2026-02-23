@@ -101,6 +101,9 @@ class _MetaResultadoCard extends StatelessWidget {
             LinearProgressIndicator(
               value: (item.percentualPeriodo / 100).clamp(0.0, 1.0),
               minHeight: 6,
+              borderRadius: BorderRadius.circular(8),
+              backgroundColor: item.cor.withOpacity(0.15),
+              color: item.cor,
               semanticsLabel: 'Progresso no período',
             ),
             const SizedBox(height: 6.0),

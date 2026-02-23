@@ -1,3 +1,5 @@
+import 'package:flutter/material.dart';
+
 class ReportMetaResult {
   final String metaId;
   final String nome;
@@ -8,6 +10,7 @@ class ReportMetaResult {
   final double percentualGeral;
   final DateTime dataInicial;
   final DateTime dataFinal;
+  final Color cor;
 
   ReportMetaResult({
     required this.metaId,
@@ -19,5 +22,6 @@ class ReportMetaResult {
     required this.percentualGeral,
     required this.dataInicial,
     required this.dataFinal,
+    required this.cor,
   });
 }

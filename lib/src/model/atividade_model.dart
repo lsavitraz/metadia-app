@@ -25,7 +25,7 @@ class AtividadeModel {
       'nome': nome,
       'diasSemana': diasSemana?.map((dia) => dia.id).toList(),
       'ativa': ativa,
-      'cor': cor.value,
+      'cor': cor.toARGB32(),
     };
   }
 

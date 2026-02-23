@@ -100,7 +100,12 @@ class __AnimatedProgressBarState extends State<_AnimatedProgressBar> {
       duration: const Duration(milliseconds: 400),
       curve: Curves.easeInOut,
       builder: (context, value, _) {
-        return LinearProgressIndicator(value: value, minHeight: 6, borderRadius: BorderRadius.circular(8), backgroundColor: widget.color.withValues(alpha: 0.15), color: widget.color);
+        return LinearProgressIndicator(
+          value: value, 
+          minHeight: 6, 
+          borderRadius: BorderRadius.circular(8), 
+          backgroundColor: widget.color.withValues(alpha: 0.15), 
+          color: widget.color);
       },
     );
   }

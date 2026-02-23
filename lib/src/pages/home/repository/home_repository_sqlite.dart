@@ -23,7 +23,7 @@ class HomeRepositorySqlite implements HomeRepository {
       'dataInicial': meta.dataInicial.toIso8601String(),
       'dataFinal': meta.dataFinal.toIso8601String(),
       'ativa': meta.ativa ? 1 : 0,
-      'cor': meta.cor.value,
+      'cor': meta.cor.toARGB32(),
     });
 
     for (var atividade in meta.atividades){
@@ -32,7 +32,7 @@ class HomeRepositorySqlite implements HomeRepository {
         'metaId': atividade.metaId,
         'nome': atividade.nome,
         'ativa': atividade.ativa ? 1 : 0,
-        'cor': atividade.cor.value,
+        'cor': atividade.cor.toARGB32(),
       });
     
       if(atividade.diasSemana != null){
@@ -404,7 +404,7 @@ class HomeRepositorySqlite implements HomeRepository {
           'dataInicial': meta.dataInicial.toIso8601String(),
           'dataFinal': meta.dataFinal.toIso8601String(),
           'ativa': meta.ativa ? 1 : 0,
-          'cor': meta.cor.value,
+          'cor': meta.cor.toARGB32(),
         },
         where: 'id = ?',
         whereArgs: [meta.id],
@@ -441,7 +441,7 @@ class HomeRepositorySqlite implements HomeRepository {
           'metaId': atividade.metaId,
           'nome': atividade.nome,
           'ativa': atividade.ativa ? 1 : 0,
-          'cor': atividade.cor.value,
+          'cor': atividade.cor.toARGB32(),
         });
 
         if (atividade.diasSemana != null && atividade.diasSemana!.isNotEmpty) {

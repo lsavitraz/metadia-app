@@ -103,14 +103,14 @@ class _DateField extends StatelessWidget {
           borderRadius: BorderRadius.circular(16),
           gradient: LinearGradient(
             colors: [
-              primary.withOpacity(0.08),
-              primary.withOpacity(0.03),
+              primary.withValues(alpha: 0.08),
+              primary.withValues(alpha: 0.03),
             ],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),
           border: Border.all(
-            color: primary.withOpacity(0.25),
+            color: primary.withValues(alpha: 0.25),
             width: 1,
           ),
         ),
@@ -123,7 +123,7 @@ class _DateField extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(6), 
               decoration: BoxDecoration(
-                color: primary.withOpacity(0.15),
+                color: primary.withValues(alpha: 0.15),
                 shape: BoxShape.circle,
               ),
               child: Icon(
@@ -172,7 +172,7 @@ class _DateField extends StatelessWidget {
             Icon(
               Icons.chevron_right,
               size: 18,
-              color: primary.withOpacity(0.7),
+              color: primary.withValues(alpha: 0.7),
             ),
           ],
         ),

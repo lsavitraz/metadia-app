@@ -23,7 +23,7 @@ class BaseScreen extends GetView<NavigationController> {
             transitionBuilder: (child, animation) {
               return FadeTransition(opacity: animation, child: child);
             },
-            child: _BuildPage(
+            child: _buildPage(
               controller.currentIndex.value,
             ),
           );
@@ -59,7 +59,7 @@ class BaseScreen extends GetView<NavigationController> {
   }
 }
 
-Widget _BuildPage(int index) {
+Widget _buildPage(int index) {
   switch (index) {
     case 0:
       return const HomeTab(key: ValueKey(0));

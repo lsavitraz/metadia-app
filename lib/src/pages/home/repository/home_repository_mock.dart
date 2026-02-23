@@ -118,6 +118,7 @@ class HomeRepositoryMock implements HomeRepository {
     }
   }
 
+  @override
   Future<void> decrementarAtividade({required DateTime data, required String metaId, required String atividadeId}) async {
     await Future.delayed(const Duration(milliseconds: 150));
     // Procurar registro existente no mesmo dia

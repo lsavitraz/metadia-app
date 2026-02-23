@@ -102,7 +102,7 @@ class _DayChip extends StatelessWidget {
           border: Border.all(
             color: selected
                 ? primary
-                : primary.withOpacity(0.35),
+                : primary.withValues(alpha: 0.35),
           ),
         ),
         child: Text(

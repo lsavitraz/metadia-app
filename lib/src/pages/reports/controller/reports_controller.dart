@@ -65,6 +65,7 @@ class ReportsController extends GetxController {
                 percentualGeral.clamp(0.0, 100.0),
             dataInicial: meta.dataInicial,
             dataFinal: meta.dataFinal,
+            cor: meta.cor,
           );
         }),
       );

@@ -41,7 +41,7 @@ class MetaModel {
       'dataFinal': dataFinal.toIso8601String(),
       'ativa': ativa,
       'arquivadaEm': arquivadaEm?.toIso8601String(),
-      'cor': cor.value,
+      'cor': cor.toARGB32(),
       };
   }
 
