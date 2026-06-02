@@ -13,31 +13,62 @@ class WeeklyCalendar extends GetView<HomeController> {
       final selectedDate = controller.selectedDate.value;
       final weekDays = _getWeekDays(selectedDate);
 
-      return Row(
+      return Column(
         children: [
-          _ArrowButton(
-            icon: Icons.arrow_back_ios,
-            onTap: controller.semanaAnterior,
-          ),
-          Expanded(
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: weekDays.map((date) {
-                final isSelected = _isSameDay(date, selectedDate);
+          Row(
+            children: [
+              _ArrowButton(
+                icon: Icons.arrow_back_ios_new,
+                onTap: controller.semanaAnterior,
+              ),
+              Expanded(
+                child: GestureDetector(
+                  behavior: HitTestBehavior.translucent,
+                  onHorizontalDragEnd: (details) {
+                    final velocity = details.primaryVelocity ?? 0;
 
-                return _DayItem(
-                  date: date,
-                  isSelected: isSelected,
-                  onTap: () {
-                    controller.selecionarDia(date);
+                    if (velocity > 0) {
+                      controller.semanaAnterior();
+                    } else if (velocity < 0) {
+                      controller.proximaSemana();
+                    }
                   },
-                );
-              }).toList(),
-            ),
-          ),
-          _ArrowButton(
-            icon: Icons.arrow_forward_ios,
-            onTap: controller.proximaSemana,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: weekDays.map((date) {
+                      final isSelected = _isSameDay(date, selectedDate);
+
+                      return _DayItem(
+                        date: date,
+                        isSelected: isSelected,
+                        onTap: () {
+                          controller.selecionarDia(date);
+                        },
+                      );
+                    }).toList(),
+                  ),
+                ),
+              ),
+              _ArrowButton(
+                icon: Icons.arrow_forward_ios,
+                onTap: controller.proximaSemana,
+              ),
+              const SizedBox(width: 4),
+              _CalendarButton(
+                onTap: () async {
+                  final picked = await showDatePicker(
+                    context: context,
+                    initialDate: selectedDate,
+                    firstDate: DateTime(2020),
+                    lastDate: DateTime(2100),
+                  );
+
+                  if (picked != null) {
+                    controller.selecionarDataNoCalendario(picked);
+                  }
+                },
+              ),
+            ],
           ),
         ],
       );
@@ -45,9 +76,18 @@ class WeeklyCalendar extends GetView<HomeController> {
   }
 
   List<DateTime> _getWeekDays(DateTime reference) {
-    final startOfWeek = reference.subtract(Duration(days: reference.weekday % 7));
+    final startOfWeek = reference.subtract(
+      Duration(days: reference.weekday % 7),
+    );
 
-    return List.generate(7, (index) => DateTime(startOfWeek.year, startOfWeek.month, startOfWeek.day + index));
+    return List.generate(
+      7,
+      (index) => DateTime(
+        startOfWeek.year,
+        startOfWeek.month,
+        startOfWeek.day + index,
+      ),
+    );
   }
 
   bool _isSameDay(DateTime a, DateTime b) {
@@ -60,30 +100,51 @@ class _DayItem extends StatelessWidget {
   final bool isSelected;
   final VoidCallback onTap;
 
-  const _DayItem({required this.date, required this.isSelected, required this.onTap});
+  const _DayItem({
+    required this.date,
+    required this.isSelected,
+    required this.onTap,
+  });
 
   @override
   Widget build(BuildContext context) {
     final dayEnum = DiasSemana.fromId(date.weekday);
 
-    return GestureDetector(
-      onTap: onTap,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 10),
-        decoration: BoxDecoration(color: isSelected ? AppColors.primary : Colors.transparent, borderRadius: BorderRadius.circular(12)),
-        child: Column(
-          children: [
-            Text(
-              dayEnum.nome.substring(0, 3).toUpperCase(),
-              style: TextStyle(fontSize: 12, fontWeight: FontWeight.w500, color: isSelected ? Colors.white : AppColors.textSecondary),
+    return Expanded(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 2),
+        child: InkWell(
+          borderRadius: BorderRadius.circular(12),
+          onTap: onTap,
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 200),
+            padding: const EdgeInsets.symmetric(vertical: 10),
+            decoration: BoxDecoration(
+              color: isSelected ? AppColors.primary : Colors.transparent,
+              borderRadius: BorderRadius.circular(12),
             ),
-            const SizedBox(height: 4),
-            Text(
-              date.day.toString(),
-              style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: isSelected ? Colors.white : AppColors.textPrimary),
+            child: Column(
+              children: [
+                Text(
+                  dayEnum.nome.substring(0, 3).toUpperCase(),
+                  style: TextStyle(
+                    fontSize: 11,
+                    fontWeight: FontWeight.w500,
+                    color: isSelected ? Colors.white : AppColors.textSecondary,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  date.day.toString(),
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                    color: isSelected ? Colors.white : AppColors.textPrimary,
+                  ),
+                ),
+              ],
             ),
-          ],
+          ),
         ),
       ),
     );
@@ -93,17 +154,50 @@ class _DayItem extends StatelessWidget {
 class _ArrowButton extends StatelessWidget {
   final IconData icon;
   final VoidCallback onTap;
-  
-  const _ArrowButton({required this.icon, required this.onTap});
+
+  const _ArrowButton({
+    required this.icon,
+    required this.onTap,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      behavior: HitTestBehavior.translucent,
-      onTap: onTap,
-      child: Icon(
-        icon,
-        color: AppColors.primary,
+    return SizedBox(
+      width: 42,
+      height: 48,
+      child: InkWell(
+        borderRadius: BorderRadius.circular(16),
+        onTap: onTap,
+        child: Icon(
+          icon,
+          size: 18,
+          color: AppColors.primary,
+        ),
+      ),
+    );
+  }
+}
+
+class _CalendarButton extends StatelessWidget {
+  final VoidCallback onTap;
+
+  const _CalendarButton({
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: 42,
+      height: 48,
+      child: InkWell(
+        borderRadius: BorderRadius.circular(16),
+        onTap: onTap,
+        child: const Icon(
+          Icons.calendar_month_outlined,
+          size: 21,
+          color: AppColors.primary,
+        ),
       ),
     );
   }

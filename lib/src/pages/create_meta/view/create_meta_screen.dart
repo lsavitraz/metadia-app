@@ -5,7 +5,6 @@ import 'package:metadia/src/pages/common_widgets/color_selector.dart';
 import 'package:metadia/src/pages/common_widgets/period_selector.dart';
 import 'package:metadia/src/pages/common_widgets/week_days_selector.dart';
 import 'package:metadia/src/pages/create_meta/controller/create_meta_controller.dart';
-import 'package:metadia/src/pages_route/app_pages.dart';
 
 class CreateMetaScreen extends GetView<CreateMetaController> {
   const CreateMetaScreen({super.key});

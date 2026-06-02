@@ -102,18 +102,6 @@ Future<void> marcarAtividade({
     return registrosDoDia.any((registro) => registro.metaId == metaId && registro.atividadeId == atividadeId);
   }
 
-  //Retorna a quantidade de atividades feitas da meta no dia
-  // int quantidadeFeitosDaMeta(String metaId) {
-  //   return registrosDoDia.where((registro) => registro.metaId == metaId).fold(0, (total, registro) => total + registro.quantidade);
-  // }
-
-  //Retorna a quantidade feita Total da meta
-  // int quantidadeTotalDaMeta(String metaId) {
-  //   return registrosDoDia.where((registro) => registro.metaId == metaId)
-  //       .where((registro) => registro.metaId == metaId)
-  //       .fold(0, (total, registro) => total + registro.quantidade);
-  // }
-
   //Retorna a quantidade feitas da atividade no dia
   int quantidadeFeitosDaAtividade({required String metaId, required String atividadeId}) {
     final registro = registrosDoDia.firstWhereOrNull((registro) => registro.metaId == metaId && registro.atividadeId == atividadeId);
@@ -136,6 +124,10 @@ Future<void> marcarAtividade({
   //Ir para o dia de hoje
   Future<void> irParaHoje() async {
     await selecionarDia(DateTime.now());
+  }
+
+  Future<void> selecionarDataNoCalendario(DateTime data) async {
+    await selecionarDia(data);
   }
 
   List<MetaModel> get metasDoDia {
