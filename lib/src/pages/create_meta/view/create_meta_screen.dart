@@ -110,8 +110,180 @@ class _GeneralSection extends GetView<CreateMetaController> {
   }
 }
 
+class _HelpSection extends StatelessWidget {
+  final String title;
+  final String description;
+  final List<String> rules;
+  final List<String> examples;
+
+  const _HelpSection({
+    required this.title,
+    required this.description,
+    required this.rules,
+    required this.examples,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          title,
+          style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                fontWeight: FontWeight.w700,
+              ),
+        ),
+        const SizedBox(height: 6),
+        Text(
+          description,
+          style: Theme.of(context).textTheme.bodyMedium,
+        ),
+        const SizedBox(height: 10),
+        Text(
+          'Como funciona',
+          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                fontWeight: FontWeight.w600,
+              ),
+        ),
+        const SizedBox(height: 4),
+        ...rules.map(
+          (item) => Padding(
+            padding: const EdgeInsets.only(bottom: 4),
+            child: Text(
+              '• $item',
+              style: Theme.of(context).textTheme.bodySmall,
+            ),
+          ),
+        ),
+        const SizedBox(height: 8),
+        Text(
+          'Exemplos',
+          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                fontWeight: FontWeight.w600,
+              ),
+        ),
+        const SizedBox(height: 4),
+        ...examples.map(
+          (item) => Padding(
+            padding: const EdgeInsets.only(bottom: 4),
+            child: Text(
+              '• $item',
+              style: Theme.of(context).textTheme.bodySmall,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
 class _TypeSection extends GetView<CreateMetaController> {
   const _TypeSection();
+
+  void _showMetaTypesHelp(BuildContext context) {
+    Get.bottomSheet(
+      Container(
+        constraints: BoxConstraints(
+          maxHeight: MediaQuery.of(context).size.height * 0.88,
+        ),
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.vertical(
+            top: Radius.circular(24),
+          ),
+        ),
+        child: SafeArea(
+          top: false,
+          child: SingleChildScrollView(
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Tipos de Meta',
+                    style: Theme.of(context).textTheme.headlineSmall,
+                  ),
+                  const SizedBox(height: 16),
+
+                  _HelpSection(
+                    title: 'Meta Simples',
+                    description:
+                        'Modelo voltado para hábitos que precisam ser realizados individualmente.',
+                    rules: [
+                      'Possui exatamente uma atividade.',
+                      'Permite apenas marcar como feito ou não feito.',
+                      'Ao marcar, cria um registro.',
+                      'Ao desmarcar, remove o registro.',
+                      'O progresso é calculado pela quantidade de registros.',
+                    ],
+                    examples: [
+                      'Meditar',
+                      'Ler',
+                      'Caminhar',
+                      'Estudar',
+                    ],
+                  ),
+
+                  const SizedBox(height: 20),
+
+                  _HelpSection(
+                    title: 'Meta Composta',
+                    description:
+                        'Modelo voltado para metas formadas por múltiplas atividades.',
+                    rules: [
+                      'Possui uma ou mais atividades.',
+                      'Cada atividade pode ter dias específicos da semana.',
+                      'Cada atividade funciona como checklist.',
+                      'O progresso considera os dias distintos em que houve execução.',
+                      'Mais de uma atividade no mesmo dia conta como um único dia de progresso.',
+                    ],
+                    examples: [
+                      'Projeto Saúde: caminhada, academia e alongamento.',
+                      'Estudos: leitura, exercícios e aulas.',
+                    ],
+                  ),
+
+                  const SizedBox(height: 20),
+
+                  _HelpSection(
+                    title: 'Meta Acumulativa',
+                    description:
+                        'Modelo voltado para metas que acumulam quantidade ao longo do tempo.',
+                    rules: [
+                      'Permite múltiplos incrementos no mesmo dia.',
+                      'O botão + aumenta a quantidade.',
+                      'O botão - diminui a quantidade.',
+                      'Quando a quantidade chega a zero, o registro é removido.',
+                      'O progresso é calculado pela soma das quantidades.',
+                    ],
+                    examples: [
+                      'Copos de água',
+                      'Páginas lidas',
+                      'Minutos estudados',
+                      'Quilômetros percorridos',
+                    ],
+                  ),
+
+                  const SizedBox(height: 24),
+
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      onPressed: Get.back,
+                      child: const Text('Entendi'),
+                    ),
+                  ),
+                ],
+              )
+            ),
+          ),
+        ),
+      ),
+      isScrollControlled: true,
+    );;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -119,7 +291,22 @@ class _TypeSection extends GetView<CreateMetaController> {
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Tipo de Meta', style: Theme.of(context).textTheme.titleMedium),
+          Row(
+            children: [
+              Text(
+                'Tipo de Meta',
+                style: Theme.of(context).textTheme.titleMedium,
+              ),
+              const SizedBox(width: 4),
+              IconButton(
+                tooltip: 'Ajuda sobre tipos de meta',
+                icon: const Icon(Icons.help_outline, size: 20),
+                onPressed: () {
+                  _showMetaTypesHelp(context);
+                },
+              ),
+            ],
+          ),
           const SizedBox(height: 12),
 
           IntrinsicWidth(
