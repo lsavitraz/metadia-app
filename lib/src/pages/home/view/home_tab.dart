@@ -16,7 +16,7 @@ class HomeTab extends GetView<HomeController> {
       }
 
       return ListView(
-        padding: const EdgeInsets.all(8), 
+        padding: const EdgeInsets.fromLTRB(8, 8, 8, 120), 
         children: [
           _buildHeader(context),
           const WeeklyCalendar(),
