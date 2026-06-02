@@ -56,15 +56,12 @@ class CreateMetaScreen extends GetView<CreateMetaController> {
                   );
                 }),
 
+                const SizedBox(height: 32),
+                const _ElevatedSaveButton(),
                 if (controller.isEditing) ...[
                   const SizedBox(height: 24),
                   const _DangerZoneSection(),
                 ],
-
-
-                const SizedBox(height: 32),
-                const _ElevatedSaveButton(),
-                const SizedBox(height: 40),
               ],
             ),
           ),
