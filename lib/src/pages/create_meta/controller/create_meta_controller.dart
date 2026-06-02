@@ -199,4 +199,20 @@ class CreateMetaController extends GetxController {
     
     Get.back();
   }
+
+  Future<void> limparProgressoMeta() async {
+    if (!isEditing || metaId == null) return;
+
+    await repository.limparProgressoMeta(metaId!);
+
+    if (Get.isRegistered<HomeController>()) {
+      await Get.find<HomeController>().carregarDados();
+    }
+
+    Get.snackbar(
+      'Progresso limpo',
+      'Os dados da meta foram zerados com sucesso.',
+      snackPosition: SnackPosition.BOTTOM,
+    );
+  }
 }

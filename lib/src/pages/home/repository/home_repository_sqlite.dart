@@ -589,4 +589,15 @@ class HomeRepositorySqlite implements HomeRepository {
       return total == null ? 0 : total as int;
   }
 
+  @override
+  Future<void> limparProgressoMeta(String metaId) async {
+    final db = await dbHelper.database;
+
+    await db.delete(
+      'registros',
+      where: 'metaId = ?',
+      whereArgs: [metaId],
+    );
+  }
+
 }

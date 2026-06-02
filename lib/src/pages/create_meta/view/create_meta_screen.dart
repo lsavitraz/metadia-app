@@ -54,6 +54,12 @@ class CreateMetaScreen extends GetView<CreateMetaController> {
                   );
                 }),
 
+                if (controller.isEditing) ...[
+                  const SizedBox(height: 24),
+                  const _DangerZoneSection(),
+                ],
+
+                
                 const SizedBox(height: 32),
                 const _ElevatedSaveButton(),
                 const SizedBox(height: 40),
@@ -297,6 +303,64 @@ class _ElevatedSaveButton extends GetView<CreateMetaController> {
       child: ElevatedButton(
         onPressed: controller.salvarMeta,
         child: const Text('Salvar Meta'),
+      ),
+    );
+  }
+}
+
+class _DangerZoneSection extends GetView<CreateMetaController> {
+  const _DangerZoneSection();
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      color: Colors.white,
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('Ações da meta', style: Theme.of(context).textTheme.titleMedium),
+            const SizedBox(height: 8),
+            Text(
+              'Estas ações afetam apenas esta meta.',
+              style: Theme.of(context).textTheme.bodySmall,
+            ),
+            const SizedBox(height: 16),
+            SizedBox(
+              width: double.infinity,
+              child: OutlinedButton.icon(
+                onPressed: () async {
+                  final confirmar = await Get.dialog<bool>(
+                    AlertDialog(
+                      title: const Text('Limpar dados da meta'),
+                      content: const Text(
+                        'Deseja zerar todo o progresso desta meta?\n\n'
+                        'A configuração, o período e as atividades serão mantidos.',
+                      ),
+                      actions: [
+                        TextButton(
+                          onPressed: () => Get.back(result: false),
+                          child: const Text('Cancelar'),
+                        ),
+                        ElevatedButton(
+                          onPressed: () => Get.back(result: true),
+                          child: const Text('Limpar dados'),
+                        ),
+                      ],
+                    ),
+                  );
+
+                  if (confirmar == true) {
+                    await controller.limparProgressoMeta();
+                  }
+                },
+                icon: const Icon(Icons.cleaning_services_outlined),
+                label: const Text('Limpar dados da meta'),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

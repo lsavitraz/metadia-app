@@ -41,5 +41,8 @@ abstract class HomeRepository {
 
   //Buscar total de meta por período
   Future<int> getTotalMetaByPeriodo(String metaId, DateTime inicio, DateTime fim);
+
+  //Limpar registros de uma meta
+  Future<void> limparProgressoMeta(String metaId);
   
 }
