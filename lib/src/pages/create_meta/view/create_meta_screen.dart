@@ -59,7 +59,7 @@ class CreateMetaScreen extends GetView<CreateMetaController> {
                   const _DangerZoneSection(),
                 ],
 
-                
+
                 const SizedBox(height: 32),
                 const _ElevatedSaveButton(),
                 const SizedBox(height: 40),
@@ -357,6 +357,48 @@ class _DangerZoneSection extends GetView<CreateMetaController> {
                 },
                 icon: const Icon(Icons.cleaning_services_outlined),
                 label: const Text('Limpar dados da meta'),
+              ),
+            ),
+            const SizedBox(height: 12),
+            SizedBox(
+              width: double.infinity,
+              child: OutlinedButton.icon(
+                style: OutlinedButton.styleFrom(
+                  foregroundColor: Colors.red,
+                  side: const BorderSide(color: Colors.red),
+                ),
+                onPressed: () async {
+                  final confirmar = await Get.dialog<bool>(
+                    AlertDialog(
+                      title: const Text('Excluir meta'),
+                      content: const Text(
+                        'Deseja excluir definitivamente esta meta?\n\n'
+                        'Esta ação removerá a meta, atividades e todo o histórico relacionado. '
+                        'Não será possível desfazer.',
+                      ),
+                      actions: [
+                        TextButton(
+                          onPressed: () => Get.back(result: false),
+                          child: const Text('Cancelar'),
+                        ),
+                        ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.red,
+                            foregroundColor: Colors.white,
+                          ),
+                          onPressed: () => Get.back(result: true),
+                          child: const Text('Excluir definitivamente'),
+                        ),
+                      ],
+                    ),
+                  );
+
+                  if (confirmar == true) {
+                    await controller.excluirMeta();
+                  }
+                },
+                icon: const Icon(Icons.delete_forever_outlined),
+                label: const Text('Excluir meta definitivamente'),
               ),
             ),
           ],

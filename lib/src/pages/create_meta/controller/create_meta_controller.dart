@@ -215,4 +215,22 @@ class CreateMetaController extends GetxController {
       snackPosition: SnackPosition.BOTTOM,
     );
   }
+
+  Future<void> excluirMeta() async {
+    if (!isEditing || metaId == null) return;
+
+    await repository.excluirMeta(metaId!);
+
+    if (Get.isRegistered<HomeController>()) {
+      await Get.find<HomeController>().carregarDados();
+    }
+
+    Get.back();
+
+    Get.snackbar(
+      'Meta excluída',
+      'A meta e todos os dados relacionados foram removidos.',
+      snackPosition: SnackPosition.BOTTOM,
+    );
+  }  
 }

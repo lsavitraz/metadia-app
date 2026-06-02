@@ -600,4 +600,36 @@ class HomeRepositorySqlite implements HomeRepository {
     );
   }
 
+  @override
+  Future<void> excluirMeta(String metaId) async {
+    final db = await dbHelper.database;
+
+    await db.transaction((txn) async {
+      await txn.delete(
+        'registros',
+        where: 'metaId = ?',
+        whereArgs: [metaId],
+      );
+
+      await txn.delete(
+        'atividade_dias',
+        where: 'atividadeId IN (SELECT id FROM atividades WHERE metaId = ?)',
+        whereArgs: [metaId],
+      );
+
+      await txn.delete(
+        'atividades',
+        where: 'metaId = ?',
+        whereArgs: [metaId],
+      );
+
+      await txn.delete(
+        'metas',
+        where: 'id = ?',
+        whereArgs: [metaId],
+      );
+    });
+  }
+
+
 }

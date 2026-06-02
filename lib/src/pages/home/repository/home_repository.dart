@@ -44,5 +44,8 @@ abstract class HomeRepository {
 
   //Limpar registros de uma meta
   Future<void> limparProgressoMeta(String metaId);
+
+  //Excluir meta definitivamente
+  Future<void> excluirMeta(String metaId);
   
 }
