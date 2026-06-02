@@ -37,17 +37,34 @@ class CreateMetaController extends GetxController {
   String? metaId; // Se for edição, terá o ID da meta sendo editada
   bool get isEditing => metaId != null;
 
+  final nomeFocusNode = FocusNode();
+
   @override
   void onInit() {
     super.onInit();
 
-    metaId = Get.arguments as String?;
+    final arguments = Get.arguments;
 
-    if(metaId != null){
+    if (arguments is String) {
+      metaId = arguments;
+    }
+
+    if (metaId != null) {
       _carregarMetaParaEdicao();
     } else {
       _criarAtividadePadrao();
     }
+  }
+
+  @override
+  void onClose() {
+    nomeController.dispose();
+    descricaoController.dispose();
+    objetivoController.dispose();
+
+    nomeFocusNode.dispose();
+
+    super.onClose();
   }
 
   MetaModel _buildMetaModel(){
@@ -100,8 +117,8 @@ class CreateMetaController extends GetxController {
     dataInicial.value = meta.dataInicial;
     dataFinal.value = meta.dataFinal;
     corSelecionada.value = meta.cor;
-    atividades.assignAll(meta.atividades);
 
+    atividades.assignAll(meta.atividades);
   }
 
   void alterarTipo(MetaType tipo) {
@@ -233,4 +250,102 @@ class CreateMetaController extends GetxController {
       snackPosition: SnackPosition.BOTTOM,
     );
   }  
+
+  Future<String?> duplicarMeta({
+    required String novoNome,
+    required DateTime novaDataInicial,
+    required DateTime novaDataFinal,
+  }) async {
+    if (metaId == null) return null;
+
+    if (novaDataFinal.isBefore(novaDataInicial)) {
+      Get.snackbar(
+        'Período inválido',
+        'A data final não pode ser anterior à data inicial.',
+        snackPosition: SnackPosition.BOTTOM,
+      );
+      return null;
+    }
+
+    final novoMetaId = const Uuid().v4();
+
+    final novaMeta = MetaModel(
+      id: novoMetaId,
+      nome: novoNome.trim().isEmpty
+          ? '${nomeController.text.trim()} (cópia)'
+          : novoNome.trim(),
+      descricao: descricaoController.text.trim(),
+      tipo: tipoSelecionado.value,
+      objetivoQuantidade: int.parse(objetivoController.text.trim()),
+      atividades: atividades.map((atividade) {
+        return AtividadeModel(
+          id: const Uuid().v4(),
+          metaId: novoMetaId,
+          nome: atividade.nome,
+          ativa: atividade.ativa,
+          cor: atividade.cor,
+          diasSemana: atividade.diasSemana == null
+              ? null
+              : List<DiasSemana>.from(atividade.diasSemana!),
+        );
+      }).toList(),
+      dataInicial: DateTime(
+        novaDataInicial.year,
+        novaDataInicial.month,
+        novaDataInicial.day,
+      ),
+      dataFinal: DateTime(
+        novaDataFinal.year,
+        novaDataFinal.month,
+        novaDataFinal.day,
+      ),
+      ativa: true,
+      arquivadaEm: null,
+      cor: corSelecionada.value,
+    );
+
+    await repository.salvarMeta(novaMeta);
+
+    if (Get.isRegistered<HomeController>()) {
+      await Get.find<HomeController>().carregarDados();
+    }
+
+    Get.snackbar(
+      'Meta duplicada',
+      'A nova meta foi criada com sucesso.',
+      snackPosition: SnackPosition.BOTTOM,
+    );
+
+    return novoMetaId;
+  }
+
+  Future<void> carregarMetaDuplicadaParaEdicao(String novaMetaId) async {
+    metaId = novaMetaId;
+
+    final meta = await repository.getMetaById(novaMetaId);
+
+    nomeController.text = meta.nome;
+    descricaoController.text = meta.descricao;
+    objetivoController.text = meta.objetivoQuantidade.toString();
+    tipoSelecionado.value = meta.tipo;
+    dataInicial.value = meta.dataInicial;
+    dataFinal.value = meta.dataFinal;
+    corSelecionada.value = meta.cor;
+    atividades.assignAll(meta.atividades);
+
+    Future.delayed(const Duration(milliseconds: 100), () {
+      nomeFocusNode.requestFocus();
+
+      nomeController.selection = TextSelection(
+        baseOffset: 0,
+        extentOffset: nomeController.text.length,
+      );
+    });
+
+    Get.snackbar(
+      'Edição da cópia',
+      'Você está editando a nova meta duplicada.',
+      snackPosition: SnackPosition.BOTTOM,
+    );
+  }
 }

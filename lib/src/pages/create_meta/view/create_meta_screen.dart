@@ -5,6 +5,7 @@ import 'package:metadia/src/pages/common_widgets/color_selector.dart';
 import 'package:metadia/src/pages/common_widgets/period_selector.dart';
 import 'package:metadia/src/pages/common_widgets/week_days_selector.dart';
 import 'package:metadia/src/pages/create_meta/controller/create_meta_controller.dart';
+import 'package:metadia/src/pages_route/app_pages.dart';
 
 class CreateMetaScreen extends GetView<CreateMetaController> {
   const CreateMetaScreen({super.key});
@@ -12,7 +13,9 @@ class CreateMetaScreen extends GetView<CreateMetaController> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Nova Meta')),
+      appBar: AppBar(
+        title: Text(controller.isEditing ? 'Editar Meta' : 'Nova Meta'),
+      ),
       body: SafeArea(
         child: Form(
           key: controller.formKey,
@@ -84,6 +87,7 @@ class _GeneralSection extends GetView<CreateMetaController> {
         const SizedBox(height: 12),
         TextFormField(
           controller: controller.nomeController,
+          focusNode: controller.nomeFocusNode,
           decoration: const InputDecoration(labelText: 'Nome da Meta'),
           validator: (value) {
             if (value == null || value.trim().isEmpty) {
@@ -311,6 +315,77 @@ class _ElevatedSaveButton extends GetView<CreateMetaController> {
 class _DangerZoneSection extends GetView<CreateMetaController> {
   const _DangerZoneSection();
 
+  Future<void> _showDuplicarMetaDialog(BuildContext context) async {
+    final nomeNovaMetaController = TextEditingController(
+      text: '${controller.nomeController.text.trim()} (cópia)',
+    );
+
+    final dataInicialNova = controller.dataInicial.value.obs;
+    final dataFinalNova = controller.dataFinal.value.obs;
+
+    await Get.dialog(
+      AlertDialog(
+        title: const Text('Duplicar meta'),
+        content: Obx(() {
+          return SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextField(
+                  controller: nomeNovaMetaController,
+                  decoration: const InputDecoration(
+                    labelText: 'Nome da nova meta',
+                  ),
+                ),
+                const SizedBox(height: 16),
+                PeriodSelector(
+                  dataInicial: dataInicialNova.value,
+                  dataFinal: dataFinalNova.value,
+                  onDataInicialChanged: (novaData) {
+                    dataInicialNova.value = novaData;
+
+                    if (dataFinalNova.value.isBefore(novaData)) {
+                      dataFinalNova.value = novaData;
+                    }
+                  },
+                  onDataFinalChanged: (novaData) {
+                    dataFinalNova.value = novaData;
+                  },
+                ),
+              ],
+            ),
+          );
+        }),
+        actions: [
+          TextButton(
+            onPressed: () => Get.back(),
+            child: const Text('Cancelar'),
+          ),
+          ElevatedButton(
+            onPressed: () async {
+            final novoNome = nomeNovaMetaController.text;
+            final novaDataInicial = dataInicialNova.value;
+            final novaDataFinal = dataFinalNova.value;
+
+            Get.back();
+
+            final novaMetaId = await controller.duplicarMeta(
+              novoNome: novoNome,
+              novaDataInicial: novaDataInicial,
+              novaDataFinal: novaDataFinal,
+            );
+
+            if (novaMetaId != null) {
+              await controller.carregarMetaDuplicadaParaEdicao(novaMetaId);
+            }
+          },
+            child: const Text('Duplicar'),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Card(
@@ -327,6 +402,17 @@ class _DangerZoneSection extends GetView<CreateMetaController> {
               style: Theme.of(context).textTheme.bodySmall,
             ),
             const SizedBox(height: 16),
+            SizedBox(
+              width: double.infinity,
+              child: OutlinedButton.icon(
+                onPressed: () {
+                  _showDuplicarMetaDialog(context);
+                },
+                icon: const Icon(Icons.copy_outlined),
+                label: const Text('Duplicar meta'),
+              ),
+            ),
+            const SizedBox(height: 12),
             SizedBox(
               width: double.infinity,
               child: OutlinedButton.icon(
