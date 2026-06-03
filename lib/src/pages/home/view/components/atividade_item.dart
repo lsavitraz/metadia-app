@@ -55,9 +55,16 @@ class _CounterControl extends StatelessWidget {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
+        Text('Hoje:', style: Theme.of(context).textTheme.bodyMedium),
+        const SizedBox(width: 6),
         _CounterButton(icon: Icons.remove, onTap: quantidade > 0 ? onDecrement : null),
         const SizedBox(width: 12),
-        Text(quantidade.toString(), style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600)),
+        Text(
+          quantidade.toString(),
+          style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                fontWeight: FontWeight.w600,
+              ),
+        ),
         const SizedBox(width: 12),
         _CounterButton(icon: Icons.add, onTap: onIncrement),
       ],

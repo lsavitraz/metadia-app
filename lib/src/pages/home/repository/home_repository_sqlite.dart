@@ -631,5 +631,21 @@ class HomeRepositorySqlite implements HomeRepository {
     });
   }
 
+  @override
+  Future<bool> metaPossuiRegistros(String metaId) async {
+    final db = await dbHelper.database;
+
+    final result = await db.rawQuery(
+      '''
+      SELECT COUNT(*) AS total
+      FROM registros
+      WHERE metaId = ?
+      ''',
+      [metaId],
+    );
+
+    final total = result.first['total'] as int? ?? 0;
+    return total > 0;
+  }
 
 }

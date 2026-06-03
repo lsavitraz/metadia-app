@@ -278,7 +278,7 @@ class _TypeSection extends GetView<CreateMetaController> {
         ),
       ),
       isScrollControlled: true,
-    );;
+    );
   }
 
   @override

@@ -37,6 +37,8 @@ class CreateMetaController extends GetxController {
   String? metaId; // Se for edição, terá o ID da meta sendo editada
   bool get isEditing => metaId != null;
 
+  final RxBool possuiRegistros = false.obs;
+
   final nomeFocusNode = FocusNode();
 
   @override
@@ -119,18 +121,26 @@ class CreateMetaController extends GetxController {
     corSelecionada.value = meta.cor;
 
     atividades.assignAll(meta.atividades);
+    possuiRegistros.value = await repository.metaPossuiRegistros(metaId!);
   }
 
   void alterarTipo(MetaType tipo) {
+    if (isEditing && possuiRegistros.value && tipo != tipoSelecionado.value) {
+      Get.snackbar(
+        'Alteração bloqueada',
+        'Esta meta já possui progresso registrado. Para preservar o histórico, o tipo da meta não pode ser alterado.',
+        snackPosition: SnackPosition.BOTTOM,
+      );
+      return;
+    }
+
     tipoSelecionado.value = tipo;
 
     if (isComposta) {
-      // Se for composta e não tiver nenhuma atividade, cria uma
       if (atividades.isEmpty) {
         _criarAtividadePadrao();
       }
     } else {
-      // Se não for composta, manter apenas 1 atividade
       if (atividades.isEmpty) {
         _criarAtividadePadrao();
       } else {
@@ -162,10 +172,27 @@ class CreateMetaController extends GetxController {
   }
 
   void adicionarAtividade(String nome) {
-    atividades.add(AtividadeModel(id: UniqueKey().toString(), metaId: '', nome: nome, ativa: true, cor: corSelecionada.value));
+    atividades.add(
+      AtividadeModel(
+        id: UniqueKey().toString(),
+        metaId: '',
+        nome: nome,
+        ativa: true,
+        cor: corSelecionada.value,
+      ),
+    );
   }
 
   void removerAtividade(int index) {
+    if (isEditing && possuiRegistros.value) {
+      Get.snackbar(
+        'Alteração bloqueada',
+        'Esta meta já possui progresso registrado. Para preservar o histórico, as atividades não podem ser removidas.',
+        snackPosition: SnackPosition.BOTTOM,
+      );
+      return;
+    }
+
     atividades.removeAt(index);
   }
 
@@ -201,20 +228,34 @@ class CreateMetaController extends GetxController {
     return true;
   }
 
-  void salvarMeta() async {
-    if(!validarFormulario()) return;
+  Future<void> salvarMeta() async {
+    if (!validarFormulario()) return;
 
-    final meta = _buildMetaModel();
+    try {
+      final meta = _buildMetaModel();
 
-    if(isEditing){
-      await repository.updateMeta(meta);
-    } else{
-      await repository.salvarMeta(meta);
+      if (isEditing) {
+        await repository.updateMeta(meta);
+      } else {
+        await repository.salvarMeta(meta);
+      }
+
+      await Get.find<HomeController>().carregarDados();
+
+      Get.back();
+
+      Get.snackbar(
+        'Meta salva',
+        'Sua meta foi salva com sucesso.',
+        snackPosition: SnackPosition.BOTTOM,
+      );
+    } catch (e) {
+      Get.snackbar(
+        'Erro ao salvar meta',
+        'Não foi possível salvar a meta. Tente novamente.',
+        snackPosition: SnackPosition.BOTTOM,
+      );
     }
-
-    Get.find<HomeController>().carregarDados();
-    
-    Get.back();
   }
 
   Future<void> limparProgressoMeta() async {
@@ -315,12 +356,13 @@ class CreateMetaController extends GetxController {
       'A nova meta foi criada com sucesso.',
       snackPosition: SnackPosition.BOTTOM,
     );
-
+    
     return novoMetaId;
   }
 
   Future<void> carregarMetaDuplicadaParaEdicao(String novaMetaId) async {
     metaId = novaMetaId;
+    possuiRegistros.value = false;
 
     final meta = await repository.getMetaById(novaMetaId);
 

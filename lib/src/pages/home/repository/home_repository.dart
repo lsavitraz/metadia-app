@@ -47,5 +47,8 @@ abstract class HomeRepository {
 
   //Excluir meta definitivamente
   Future<void> excluirMeta(String metaId);
+
+  //Verificar se a meta possui registros
+  Future<bool> metaPossuiRegistros(String metaId);
   
 }

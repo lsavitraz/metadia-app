@@ -46,6 +46,12 @@ class HomeController extends GetxController {
       metas.assignAll(await repository.getMetasAtivas());
       await carregarTotaisMetas();
       await _carregarRegistrosDoDia();
+    } catch (e) {
+      Get.snackbar(
+        'Erro ao carregar dados',
+        'Não foi possível carregar suas metas. Tente novamente.',
+        snackPosition: SnackPosition.BOTTOM,
+      );
     } finally {
       isLoading.value = false;
     }
